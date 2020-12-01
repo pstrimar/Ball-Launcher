@@ -4,48 +4,38 @@ using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour
 {
-    public event Action onPlay;
-    public GameObject gameOverImage;
-    public GameObject titleImage;
-    public RectTransform playButton;
-    public RectTransform quitButtton;
-    public Text playButtonText;
-    public BallLauncher launcher;
-    public BallReturn ballReturn;
-    public GameObject menuUI;
-    public RectTransform menuImages;
-    public GameObject postProcessing;
+    public static event Action onPlay;
+    public GameObject GameOverImage;
+    public GameObject TitleImage;
+    public RectTransform PlayButton;
+    public RectTransform QuitButtton;
+    public Text PlayButtonText;
+    public GameObject MenuUI;
+    public RectTransform MenuImages;
+    public GameObject PostProcessing;
 
     private void Awake()
     {
+        // Disable post processing if on mobile
 #if UNITY_ANDROID || UNITY_IOS
-        postProcessing.SetActive(false);
+        PostProcessing.SetActive(false);
 #endif
     }
     private void OnEnable()
     {
         FadeIn();
 
-        if (ballReturn != null)
-        {
-            ballReturn.onGameOver += HandleGameOver;
-        }
+        BallReturn.onGameOver += HandleGameOver;
     }
 
     private void OnDisable()
     {
-        if (ballReturn != null)
-        {
-            ballReturn.onGameOver -= HandleGameOver;
-        }
+        BallReturn.onGameOver -= HandleGameOver;
     }
 
     public void Play()
     {
-        launcher.enabled = true;
-        onPlay?.Invoke();
-
-        FadeOut();
+        FadeOut();      
     }
 
     public void Quit()
@@ -56,29 +46,48 @@ public class MainMenuUI : MonoBehaviour
 
     private void HandleGameOver()
     {
-        launcher.enabled = false;
-        menuUI.SetActive(true);
         FadeIn();
-        if (titleImage.activeSelf)
-            titleImage.SetActive(false);
-        if (!gameOverImage.activeSelf)
-            gameOverImage.SetActive(true);
 
-        playButtonText.text = "REPLAY";
-    }
+        // Switches title image to game over image
+        if (TitleImage.activeSelf)
+            TitleImage.SetActive(false);
+        if (!GameOverImage.activeSelf)
+            GameOverImage.SetActive(true);
 
-    private void TurnMenuOff()
-    {
-        menuUI.SetActive(false);
+        PlayButtonText.text = "REPLAY";
     }
 
     private void FadeIn()
     {
-        LeanTween.alphaCanvas(menuUI.GetComponent<CanvasGroup>(), 1, .5f).setFrom(0);
+        CanvasGroup canvasGroup = MenuUI.GetComponent<CanvasGroup>();
+
+        // Fades alpha of canvasgroup from 0 to 1 over .5 seconds
+        LeanTween.alphaCanvas(canvasGroup, 1, .5f).setFrom(0);
+
+        // Makes canvasgroup interactable and block raycasts
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+
+        // Sets post processing to active if not on mobile
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        PostProcessing.SetActive(true);
+#endif
     }
 
     private void FadeOut()
     {
-        LeanTween.alphaCanvas(menuUI.GetComponent<CanvasGroup>(), 0, .5f).setFrom(1).setOnComplete(TurnMenuOff); ;
+        CanvasGroup canvasGroup = MenuUI.GetComponent<CanvasGroup>();
+
+        // Fades alpha of canvasgroup from 1 to 0 over .5 seconds
+        LeanTween.alphaCanvas(canvasGroup, 0, .5f).setFrom(1).setOnComplete(onPlay);
+
+        // Makes canvasgroup not interactable or block raycasts
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+
+        // Sets post processing to inactive if not on mobile
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        PostProcessing.SetActive(false);
+#endif
     }
 }

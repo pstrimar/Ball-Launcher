@@ -16,8 +16,10 @@ public class Ball : MonoBehaviour
 
     private void Update()
     {
+        // Sets our velocity to our move speed
         rb.velocity = rb.velocity.normalized * moveSpeed;
 
+        // if ball hits walls consecutively 10 times, add gravity to prevent ball from being stuck
         if (wallHitCount >= 10)
         {
             rb.gravityScale = .5f;
@@ -35,6 +37,7 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Reset wall hit count if we hit something else
         if (collision.transform.tag != "Wall")
         {
             wallHitCount = 0;

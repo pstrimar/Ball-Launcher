@@ -3,12 +3,10 @@ using UnityEngine.UI;
 
 public class Score : MonoBehaviour
 {
-    public Text currentScoreText;
-    public Text bestScoreText;
-    public Text ballCountText;
-    public ObjectSpawner spawner;
-    public MainMenuUI mainMenuUI;
-    public BallLauncher launcher;
+    public Text CurrentScoreText;
+    public Text BestScoreText;
+    public Text BallCountText;
+
     private int startingScore = 0;
     private int startingBallCount = 1;
     private int currentScore;
@@ -21,66 +19,48 @@ public class Score : MonoBehaviour
 
     void Start()
     {
-        currentScoreText.text = currentScore.ToString();
-        bestScoreText.text = currentScore.ToString();
-        ballCountText.text = startingBallCount.ToString();
+        CurrentScoreText.text = currentScore.ToString();
+        BestScoreText.text = currentScore.ToString();
+        BallCountText.text = startingBallCount.ToString();
     }
 
     private void OnEnable()
     {
-        if (spawner != null)
-        {
-            spawner.onRowSpawned += HandleRowSpawned;
-        }
-
-        if (mainMenuUI != null)
-        {
-            mainMenuUI.onPlay += HandleRetry;
-        }
-
-        if (launcher != null)
-        {
-            launcher.onBallAdded += HandleBallAdded;
-        }
+        ObjectSpawner.onRowSpawned += HandleRowSpawned;
+        MainMenuUI.onPlay += HandleRetry;
+        BallLauncher.onBallAdded += HandleBallAdded;
     }
 
     private void OnDisable()
     {
-        if (spawner != null)
-        {
-            spawner.onRowSpawned -= HandleRowSpawned;
-        }
-
-        if (mainMenuUI != null)
-        {
-            mainMenuUI.onPlay -= HandleRetry;
-        }
-
-        if (launcher != null)
-        {
-            launcher.onBallAdded -= HandleBallAdded;
-        }
+        ObjectSpawner.onRowSpawned -= HandleRowSpawned;
+        MainMenuUI.onPlay -= HandleRetry;
+        BallLauncher.onBallAdded -= HandleBallAdded;
     }
 
     private void HandleRowSpawned(int score)
     {
         currentScore = score;
+
+        // Increase best score if current score exceeds current best score
         if (bestScore <= score)
             bestScore = score;
 
-        currentScoreText.text = currentScore.ToString();
+        CurrentScoreText.text = currentScore.ToString();
 
-        bestScoreText.text = bestScore.ToString();
+        BestScoreText.text = bestScore.ToString();
     }
 
+    // Update ball count text to current ball count
     private void HandleBallAdded(int ballCount)
     {
-        ballCountText.text = ballCount.ToString();
+        BallCountText.text = ballCount.ToString();
     }
 
+    // Reset current score on retry
     private void HandleRetry()
     {
         currentScore = startingScore;
-        currentScoreText.text = currentScore.ToString();
+        CurrentScoreText.text = currentScore.ToString();
     }
 }

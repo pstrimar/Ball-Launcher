@@ -11,9 +11,11 @@ public class ScaleToScreenSize : MonoBehaviour
 
     private void Start()
     {
+        // Get height and width of screen
         height = Camera.main.orthographicSize * 2;
         width = height * Screen.width / Screen.height;
 
+        // Scale and position each wall based on screen size
         leftWall.transform.localScale = new Vector3(leftWall.transform.localScale.x, height, leftWall.transform.localScale.z);
 
         leftWall.transform.position = new Vector3(-width / 2, 0, 0);
@@ -29,7 +31,7 @@ public class ScaleToScreenSize : MonoBehaviour
         ObjectSpawner spawner = FindObjectOfType<ObjectSpawner>();
 
         // 0.6f = width of block, so .75f is width of block plus .15f gap
-        spawner.playWidth = Mathf.FloorToInt(width / (.75f));
+        spawner.PlayWidth = Mathf.FloorToInt(width / (.75f));
 
         // .55f = .1f (width of wall) + .15f (gap) + .3f (half width of block)
         spawner.transform.position = new Vector3((-width / 2) + .55f, spawner.transform.position.y, spawner.transform.position.z);

@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class BallReturn : MonoBehaviour
 {
-    public event Action onGameOver;
-    public BallLauncher ballLauncher;
+    public static event Action onGameOver;
+    public static event Action<GameObject> onBallReturned;
+
     private AudioSource audioSource;
 
     private void Awake()
@@ -14,14 +15,16 @@ public class BallReturn : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Game Over if block crosses ball return line
         if (collision.gameObject.tag == "Block")
         {
             onGameOver?.Invoke();
         }
         else
         {
-            ballLauncher.ReturnBall(collision.transform.position.x);
-            collision.gameObject.SetActive(false);
+            // Broadcast ball returned and pass in the ball gameobject
+            onBallReturned?.Invoke(collision.gameObject);
+
             audioSource.Play();
         }
     }
