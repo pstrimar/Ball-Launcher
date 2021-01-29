@@ -10,10 +10,10 @@ public class ObjectSpawner : MonoBehaviour
     public AudioSource RowSpawnedAudioSource;
     public AudioSource BlockHitAudioSource;
 
-    [SerializeField] GameObject[] objectPrefabs;
+    [SerializeField] GameObject ballPickupPrefab;
     [SerializeField] int startingRows = 3;
 
-    private int rowsSpawned;    
+    private int rowsSpawned;
     private List<GameObject> objectsSpawned = new List<GameObject>();
 
     private void OnEnable()
@@ -21,6 +21,7 @@ public class ObjectSpawner : MonoBehaviour
         MainMenuUI.onPlay += HandlePlay;
         BallLauncher.onAllBallsReturned += HandleBallsReturned;
         Block.onBlockHit += HandleBlockHit;
+        BallReturn.onGameOver += HandleGameOver;
     }
 
     private void OnDisable()
@@ -28,9 +29,10 @@ public class ObjectSpawner : MonoBehaviour
         MainMenuUI.onPlay -= HandlePlay;
         BallLauncher.onAllBallsReturned -= HandleBallsReturned;
         Block.onBlockHit -= HandleBlockHit;
+        BallReturn.onGameOver -= HandleGameOver;
     }
 
-    public void SpawnRowOfObjects()
+    private void SpawnRowOfObjects()
     {
         foreach (var _object in objectsSpawned)
         {
@@ -51,21 +53,24 @@ public class ObjectSpawner : MonoBehaviour
                 if (UnityEngine.Random.Range(0, 100) < 85)
                 {
                     // Instantiate either a square block or a diamond block
-                    var block = Instantiate(objectPrefabs[UnityEngine.Random.Range(0, 2)], GetPosition(i), Quaternion.identity);
+                    var block = ObjectPool.GetBlock();
+                    block.transform.position = GetPosition(i);
 
                     // Number of hits to be number of total rows spawned + 1 or 2
                     int hits = UnityEngine.Random.Range(1, 3) + rowsSpawned;
 
+                    // Add block to our list of spawned objects
+                    objectsSpawned.Add(block);
+
                     // Set number of hits remaining on block
                     block.GetComponent<Block>().SetHits(hits);
 
-                    // Add block to our list of spawned objects
-                    objectsSpawned.Add(block);
+                    block.SetActive(true);
                 }
                 // 15% of the time, spawn a ball pickup
                 else
                 {
-                    var ball = Instantiate(objectPrefabs[2], GetPosition(i), Quaternion.identity);
+                    var ball = Instantiate(ballPickupPrefab, GetPosition(i), Quaternion.identity);
                     // Add ball to our list of spawned objects
                     objectsSpawned.Add(ball);
                 }
@@ -75,11 +80,16 @@ public class ObjectSpawner : MonoBehaviour
         // Increase rows spawned count
         rowsSpawned++;
 
-        // After initial row, broadcast each row spawned to increase score
+        // After initial rows, broadcast each row spawned to increase score
         if (rowsSpawned > startingRows)
             onRowSpawned?.Invoke(rowsSpawned - startingRows);
 
         RowSpawnedAudioSource.Play();
+    }
+
+    public void RemoveFromList(GameObject obj)
+    {
+        objectsSpawned.Remove(obj);
     }
 
     private Vector3 GetPosition(int i)
@@ -94,16 +104,6 @@ public class ObjectSpawner : MonoBehaviour
 
     private void HandlePlay()
     {
-        // Destroys all block gameobjects
-        foreach (var block in objectsSpawned)
-        {
-            if (block != null)
-                Destroy(block.gameObject);
-        }
-
-        // Clears our list of objects
-        objectsSpawned.Clear();
-
         // Resets rows spawned count
         rowsSpawned = 0;
 
@@ -112,6 +112,25 @@ public class ObjectSpawner : MonoBehaviour
         {
             SpawnRowOfObjects();
         }
+    }
+
+    private void HandleGameOver()
+    {
+        // Return all block gameobjects to pool
+        foreach (var _object in objectsSpawned)
+        {
+            if (_object.GetComponent<Block>() != null)
+            {
+                ObjectPool.ReturnBlock(_object);
+            }
+            else
+            {
+                Destroy(_object);
+            }
+        }
+
+        // Clears our list of objects
+        objectsSpawned.Clear();
     }
 
     private void HandleBallsReturned()

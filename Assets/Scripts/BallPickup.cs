@@ -11,7 +11,7 @@ public class BallPickup : MonoBehaviour
         {
             // Broadcast ball picked up
             onBallPickedUp?.Invoke();
-
+            FindObjectOfType<ObjectSpawner>().RemoveFromList(this.gameObject);
             Destroy(this.gameObject);
         }
     }

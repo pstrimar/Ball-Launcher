@@ -23,6 +23,7 @@ public class BallReturn : MonoBehaviour
         else
         {
             // Broadcast ball returned and pass in the ball gameobject
+            ObjectPool.ReturnBall(collision.gameObject);
             onBallReturned?.Invoke(collision.gameObject);
 
             audioSource.Play();

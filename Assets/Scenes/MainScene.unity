@@ -628,7 +628,7 @@ GameObject:
   - component: {fileID: 319118008}
   - component: {fileID: 319118007}
   - component: {fileID: 319118005}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Left Wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -1092,6 +1092,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1224,6 +1225,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a184ad06f287e904d802abf87e90661e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &526544052
 GameObject:
   m_ObjectHideFlags: 0
@@ -1833,7 +1846,7 @@ GameObject:
   - component: {fileID: 1143668475}
   - component: {fileID: 1143668474}
   - component: {fileID: 1143668472}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Right Wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -2218,7 +2231,7 @@ GameObject:
   - component: {fileID: 1180418458}
   - component: {fileID: 1180418457}
   - component: {fileID: 1180418455}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Top Wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -3123,10 +3136,8 @@ MonoBehaviour:
   DistanceBetweenObjects: 0.75
   RowSpawnedAudioSource: {fileID: 1997186983}
   BlockHitAudioSource: {fileID: 1997186984}
-  objectPrefabs:
-  - {fileID: 663738148967193212, guid: 0544d32da1ce59847b0cbab71c160cec, type: 3}
-  - {fileID: 4019302135591940236, guid: adc7cb1ea0e62e84ebfd27a2d1a0ca3e, type: 3}
-  - {fileID: 4641400083588633806, guid: 6d7b7ee401477cd4db9f1940ef5ad7b9, type: 3}
+  ballPickupPrefab: {fileID: 4641400083588633806, guid: 6d7b7ee401477cd4db9f1940ef5ad7b9,
+    type: 3}
   startingRows: 3
 --- !u!4 &1997186982
 Transform:

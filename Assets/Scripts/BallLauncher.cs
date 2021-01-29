@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BallLauncher : MonoBehaviour
@@ -12,7 +11,7 @@ public class BallLauncher : MonoBehaviour
     private Vector3 startDragPosition;
     private Vector3 endDragPosition;
     private LaunchPreview launchPreview;
-    private List<Ball> balls = new List<Ball>();                // This will be used for object pooling
+    private int ballsTotal = 0;
     private int ballsReady;
     private bool gameIsActive;                                  // This will determine whether or not we can launch balls
 
@@ -47,7 +46,7 @@ public class BallLauncher : MonoBehaviour
             Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + Vector3.back * -10f;
 
             // If all balls have returned
-            if (ballsReady == balls.Count)
+            if (ballsReady == ballsTotal)
             {
                 // If we left click
                 if (Input.GetMouseButtonDown(0))
@@ -68,35 +67,20 @@ public class BallLauncher : MonoBehaviour
         }
     }
 
-    public void CreateBall()
-    {
-        // Instantiate ball prefab, set it to inactive, add it our the list, and update the balls ready count
-        var ball = Instantiate(ballPrefab);
-        ball.gameObject.SetActive(false);
-        balls.Add(ball);
-        ballsReady++;
-
-        // Broadcast ball count
-        onBallAdded?.Invoke(balls.Count);
-    }
-
     private IEnumerator LaunchBalls()
     {
         // Direction to launch balls
         Vector3 direction = startDragPosition - endDragPosition;
         direction.Normalize();
 
-        foreach (var ball in balls)
+        for (int i = 0; i < ballsTotal; i++)
         {
+            Ball ball = ObjectPool.GetBall();
             // Set each balls position to ball launcher position
             ball.transform.position = transform.position;
             // Turn gameobject on
             ball.gameObject.SetActive(true);
-            // Set gravity to 0
-            ball.GetComponent<Rigidbody2D>().gravityScale = 0f;
-            // Add force of unit 1 in direction to launch balls
-            ball.GetComponent<Rigidbody2D>().AddForce(direction);
-
+            ball.StartMoving(direction);
             // Launch every .1 seconds
             yield return new WaitForSeconds(0.1f);
 
@@ -137,27 +121,29 @@ public class BallLauncher : MonoBehaviour
     private void HandleRetry()
     {
         ballsReady = 0;
-        balls.Clear();
         for (int i = 0; i < StartingBallCount; i++)
         {
-            CreateBall();
+            ballsReady++;
+            ballsTotal++;
         }
         gameIsActive = true;
     }
 
     private void HandleBallPickup()
     {
-        CreateBall();
+        ballsTotal++;
+        ballsReady++;
+        // Broadcast ball count
+        onBallAdded?.Invoke(ballsTotal);
     }
 
     private void HandleBallReturned(GameObject ball)
     {
-        // Increase balls ready count
+        // Increase balls ready count        
         ballsReady++;
-        ball.SetActive(false);
 
         // If all balls are returned, broadcast message, and set our new x position to x position of last ball returned
-        if (ballsReady == balls.Count)
+        if (ballsReady == ballsTotal)
         {
             onAllBallsReturned?.Invoke();
             transform.position = new Vector2(ball.transform.position.x, transform.position.y);
@@ -166,6 +152,8 @@ public class BallLauncher : MonoBehaviour
 
     private void HandleGameOver()
     {
+        ballsTotal = 0;
+        ballsReady = 0;
         StartingBallCount = 1;
         gameIsActive = false;
     }

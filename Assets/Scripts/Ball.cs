@@ -5,10 +5,11 @@ public class Ball : MonoBehaviour
     private Rigidbody2D rb;
     private AudioSource audioSource;
     private int wallHitCount;
+    private float impulseForce = 10;
 
     [SerializeField] float moveSpeed = 10f;
 
-    private void Awake()
+    public void Initialize()
     {
         rb = GetComponent<Rigidbody2D>();
         audioSource = GetComponent<AudioSource>();
@@ -25,6 +26,18 @@ public class Ball : MonoBehaviour
             rb.gravityScale = .5f;
             wallHitCount = 0;
         }            
+    }
+
+    public void StartMoving(Vector3 direction)
+    {
+        Vector3 forceVector = direction * impulseForce;
+        rb.gravityScale = 0;
+        rb.AddForce(forceVector, ForceMode2D.Impulse);
+    }
+
+    public void StopMoving()
+    {
+        rb.velocity = Vector2.zero;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -16,6 +16,13 @@ public class Block : MonoBehaviour
         text = GetComponentInChildren<TextMeshPro>();
     }
 
+    public void Initialize()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        text = GetComponentInChildren<TextMeshPro>();
+        UpdateVisualState();
+    }
+
     // Sets block text to show hits remaining, and sets color to lerp from start color to white based on hits remaining
     private void UpdateVisualState()
     {
@@ -33,7 +40,10 @@ public class Block : MonoBehaviour
         if (hitsRemaining > 0)
             UpdateVisualState();
         else
-            Destroy(gameObject);
+        {
+            FindObjectOfType<ObjectSpawner>().RemoveFromList(this.gameObject);
+            ObjectPool.ReturnBlock(this.gameObject);
+        }            
     }
 
     // Sets the number of hits remaining and updates visual state accordingly
